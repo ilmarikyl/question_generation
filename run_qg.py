@@ -25,7 +25,8 @@ from data_collator import T2TDataCollator
 from utils import freeze_embeds, assert_not_all_frozen
 
 MODEL_TYPE_TO_TOKENIZER = {
-    "t5": T5Tokenizer,
+    # "t5": T5Tokenizer, # multilingun takia kommentoitu ulos
+    "t5": AutoTokenizer,
     "bart": BartTokenizer,
 }
 
@@ -146,6 +147,8 @@ def main(args_file=None):
     # The .from_pretrained methods guarantee that only one local process can concurrently
     # download model & vocab.
     tokenizer_cls = MODEL_TYPE_TO_TOKENIZER[model_args.model_type]
+
+    # ---
     tokenizer = tokenizer_cls.from_pretrained(
         model_args.tokenizer_name_or_path if model_args.tokenizer_name_or_path else model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
@@ -154,6 +157,13 @@ def main(args_file=None):
         model_args.model_name_or_path,
         cache_dir=model_args.cache_dir,
     )
+
+    # ALLA OMAT ---
+    tokenizer = tokenizer_cls.from_pretrained("google/mt5-base")
+    model = AutoModelForSeq2SeqLM.from_pretrained("google/mt5-base")
+
+
+    # ---
 
     model.resize_token_embeddings(len(tokenizer))
 

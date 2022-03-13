@@ -110,6 +110,18 @@ class SquadMultitask(nlp.GeneratorBasedBuilder):
         }
         downloaded_files = dl_manager.download_and_extract(urls_to_download)
 
+        print('DOWNLOADED FILES:')
+        print(downloaded_files)
+
+        # --- TÄMÄ ON OMA LISÄYS
+
+        # downloaded_files["train"] = "/mnt/c/Users/Ilmar/Desktop/gradu_tests/datasets/qg_train_split-64604.json"
+        # downloaded_files["dev"] = "/mnt/c/Users/Ilmar/Desktop/gradu_tests/datasets/qg_dev_split-4902.json"
+
+        downloaded_files["train"] = "C:\\Users\Ilmar\\Desktop\\gradu_tests\\datasets\\SQuADv2-FIN-train-v1.json"
+        downloaded_files["train"] = "C:\\Users\Ilmar\\Desktop\\gradu_tests\\datasets\\qg_dev_split-4902.json"
+        # ---
+
         return [
             nlp.SplitGenerator(name=nlp.Split.TRAIN, gen_kwargs={"filepath": downloaded_files["train"]}),
             nlp.SplitGenerator(name=nlp.Split.VALIDATION, gen_kwargs={"filepath": downloaded_files["dev"]}),
@@ -127,6 +139,10 @@ class SquadMultitask(nlp.GeneratorBasedBuilder):
         elif context[start_idx-2:end_idx-2] == gold_text:
             return start_idx-2, end_idx-2   # When the gold label is off by two character
         else:
+            print('GOLD_TEXT:', gold_text)
+            print('ANSWER:', answer)
+            print('CONTEXT:', context)
+            print('-------')
             raise ValueError()
     
     def process_qa_text(self, context, question, answer):
@@ -207,12 +223,13 @@ class SquadMultitask(nlp.GeneratorBasedBuilder):
         logging.info("generating examples from = %s", filepath)
         count = 0
         tasks = ['qa', 'qg', 'ans_ext', 'e2e_qg']
-        with open(filepath) as f:
+        with open(filepath, encoding="utf8") as f:
             squad = json.load(f)
             for article in squad["data"]:
                 title = article.get("title", "").strip()
                 for paragraph in article["paragraphs"]:
-                    context = paragraph["context"].strip()
+                    # context = paragraph["context"].strip()
+                    context = paragraph["context"] # Ei strippausta suomelle! Voi aiheuttaa ongelmia
                     
                     if 'ans_ext' in tasks:
                         ans_ext_examples = self.process_ans_ext(paragraph)
@@ -225,10 +242,12 @@ class SquadMultitask(nlp.GeneratorBasedBuilder):
                         count += 1
                     
                     for qa in paragraph["qas"]:
-                        question = qa["question"].strip()
+                        # question = qa["question"].strip()
+                        question = qa["question"]  # Ei strippausta suomelle! Voi aiheuttaa ongelmia
                         id_ = qa["id"]
 
-                        answers = [answer["text"].strip() for answer in qa["answers"]]
+                        # answers = [answer["text"].strip() for answer in qa["answers"]]
+                        answers = [answer["text"] for answer in qa["answers"]]  # Ei strippausta suomelle! Voi aiheuttaa ongelmia
                         for task in tasks:
                             if task == 'qa':
                                 yield count, self.process_qa_text(context, question, answers[0])

@@ -1,0 +1,7 @@
+transformers==3.0.0
+nltk
+nlp==0.2.0 # only if you want to fine-tune.
+
+# Pytorch v 1.5.0
+-f https://download.pytorch.org/whl/torch_stable.html
+torch==1.5.0+cu101

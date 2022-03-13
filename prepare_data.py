@@ -5,7 +5,7 @@ from typing import Dict, List, Optional
 
 import torch
 import nlp
-from transformers import T5Tokenizer, BartTokenizer, HfArgumentParser
+from transformers import T5Tokenizer, BartTokenizer, HfArgumentParser, AutoTokenizer
 
 
 logger = logging.getLogger(__name__)
@@ -146,9 +146,12 @@ def main():
     )
 
     if data_args.model_type == 't5':
-        tokenizer = T5Tokenizer.from_pretrained("t5-base")
+        # tokenizer = T5Tokenizer.from_pretrained("t5-base")
+        # tokenizer = T5Tokenizer.from_pretrained("google/mt5-base") # Käytetään multilingual mallia
+        tokenizer = AutoTokenizer.from_pretrained("google/mt5-base") # Käytetään multilingual mallia
     else:
-        tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
+        # tokenizer = BartTokenizer.from_pretrained("facebook/bart-base")
+        exit() # Ei mitään bartteja
     
     tokenizer.add_tokens(['<sep>', '<hl>'])
     
